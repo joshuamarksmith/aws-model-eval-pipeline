@@ -1,0 +1,17 @@
+{
+  "name": "model-eval-pipeline",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": { "build": "tsc", "cdk": "cdk" },
+  "devDependencies": {
+    "aws-cdk": "2.139.0",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.4.3"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.540.0",
+    "aws-cdk-lib": "2.139.0",
+    "constructs": "^10.3.0",
+    "source-map-support": "^0.5.21"
+  }
+}
