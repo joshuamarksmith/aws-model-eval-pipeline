@@ -1,183 +1,218 @@
 # Model‑Evaluation Pipeline (Left‑Side Stack)
-_Automated offline vetting & approval of LLM candidates before API‑Gateway deployment_
+
+*Automated, model‑agnostic vetting & approval of LLM candidates before API‑Gateway deployment*
 
 ---
 
 ## Table of Contents
+
 1. [Why this stack exists](#why-this-stack-exists)
 2. [High‑level architecture](#high-level-architecture)
 3. [Repository layout](#repository-layout)
-4. [Prerequisites](#prerequisites)
-5. [Deploying](#deploying)
-6. [Triggering an evaluation](#triggering-an-evaluation)
-7. [Outputs & hand‑off to the Deployment stack](#outputs--hand-off)
-8. [Environment variables & CDK context keys](#environment-variables--cdk-context)
-9. [Extending / production‑hardening](#extending--production-hardening)
-10. [Troubleshooting & common gotchas](#troubleshooting--common-gotchas)
+4. [Prerequisites & bootstrap](#prerequisites--bootstrap)
+5. [Deploying the stack](#deploying-the-stack)
+6. [Prompt‑wrapper config (model‑agnostic)](#prompt-wrapper-config)
+7. [Triggering an evaluation](#triggering-an-evaluation)
+8. [Outputs & hand‑off](#outputs--hand-off)
+9. [Environment variables & CDK context](#environment-variables--cdk-context)
+10. [Extending / hardening](#extending--hardening)
+11. [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Why this stack exists
-Regulated industries need an **audit‑ready gate** between “new model release” and “serving live traffic.”  
-This stack provides that gate by running six independent evaluations on every new or updated model:
 
-| Capability | Implementation |
-|------------|----------------|
-| **Quantitative benchmark** | `LatencyP95Fn` measures P95 latency across ten invocations and fails if it exceeds the SLA. |
-| **Qualitative benchmark (LLM‑as‑Judge)** | `LLMJudgeFn` calls a judge model (Claude 3 Opus) to grade candidate answers on a 1‑4 rubric. |
-| **Domain & safety guardrails** | Four Lambdas—`FactualAccuracy`, `RegulatoryCitations`, `FairLending`, `PrivacyCompliance`. |
-| **Orchestration & lineage** | AWS Step Functions plus a DynamoDB table store every run, score, and verdict. |
-| **Event‑based hand‑off** | EventBridge emits `ModelApproved`; the Deployment stack consumes the event and flips API Gateway weights. |
-
-Pass **all six** checks → the model is promoted; otherwise it is rejected with a full audit trail.
+Regulated industries need an **audit‑ready gate** between "new model release" and "serving live traffic."  This stack runs six evaluations—latency, qualitative LLM‑Judge, factual, regulatory, fair‑lending, privacy—then emits a *ModelApproved* event.  **No code changes** are required to switch model families (Anthropic → Mistral → Llama, or your own fine‑tune) thanks to a **prompt‑wrapper config** stored in S3 + SSM.
 
 ---
 
 ## High‑level architecture
+
 ```text
-EventBridge (shared "ModelOpsBus")
-   │               ▲
-   │  NewModelVersion / ModelApproved events
-   ▼               │
-┌──────────┐   ┌─────────────────────┐
-│ Rule     ├──►│  Step Functions     │
-└──────────┘   │  Parallel "Evals"   │
-               │  ├── LatencyP95Fn   │───► DynamoDB test lineage
-               │  ├── LLMJudgeFn     │
-               │  ├── FactualFn      │
-               │  ├── RegulatoryFn   │
-               │  ├── FairLendingFn  │
-               │  └── PrivacyFn      │
-               └─────────────────────┘
+EventBridge (ModelOpsBus)
+   │  NewModelVersion / ModelImported
+   ▼
+┌────────────────────────────┐
+│  Step Functions (Parallel) │
+│  ├─ LatencyP95Fn           │
+│  ├─ LLMJudgeFn             │
+│  ├─ FactualFn              │
+│  ├─ RegulatoryFn           │
+│  ├─ FairLendingFn          │
+│  └─ PrivacyFn              │
+└────────────────────────────┘
+          │
+          ▼
+ EventBridge  ➜  Deployment stack      &      SSM / DynamoDB lineage
 ```
+
+Each Lambda first calls **`wrapPrompt(modelId, rawText)`** (from a shared layer) so prompts are automatically wrapped for the correct chat format (Claude ChatML, Mistral `[INST]`, Llama 3, etc.).
 
 ---
 
 ## Repository layout
+
 ```text
 model-eval-pipeline/
-├── bin/evaluation.ts             # CDK entry‑point
-├── lib/evaluation-stack.ts       # Core infrastructure
-├── lambda/                       # 6 evaluation handlers
-│   ├── eval-factual/index.ts
-│   ├── eval-regulatory/index.ts
-│   ├── eval-fairlending/index.ts
-│   ├── eval-privacy/index.ts
-│   ├── eval-latency/index.ts
-│   └── eval-qualitative/index.ts
-├── package.json                  # CDK + AWS SDK dependencies
-├── tsconfig.json
-└── cdk.json
+├─ bin/evaluation.ts                # CDK entry‑point
+├─ lib/evaluation-stack.ts          # Core infra
+├─ lambda/                          # 6 evaluator handlers
+│   ├─ eval‑factual/index.ts
+│   ├─ eval‑regulatory/index.ts
+│   ├─ eval‑fairlending/index.ts
+│   ├─ eval‑privacy/index.ts
+│   ├─ eval‑latency/index.ts
+│   └─ eval‑qualitative/index.ts
+├─ layer/ prompt-utils/             # Lambda Layer (wrapPrompt)
+│   └─ prompt-utils.ts
+├─ config/ prompt-wrappers.json     # Model‑to‑template mapping
+├─ package.json  tsconfig.json  cdk.json
+└─ README.md (this file)
 ```
 
 ---
 
-## Prerequisites
-| Tool | Minimum version |
-|------|-----------------|
-| **Node.js** | 18 LTS |
-| **AWS CDK** | 2.139.0 |
-| **AWS CLI** | 2.15+ |
-| IAM perms   | `cdk bootstrap`, `bedrock:InvokeModel`, CloudWatch, EventBridge, SSM |
+## Prerequisites & bootstrap
+
+| Tool           | Version                                                    |
+| -------------- | ---------------------------------------------------------- |
+| Node.js        | 18 LTS                                                     |
+| AWS CDK        | ≥ 2.139                                                    |
+| Docker Desktop | running (for Lambda bundling)                              |
+| IAM perms      | CDK bootstrap, Bedrock `InvokeModel`, SSM, S3, EventBridge |
 
 ```bash
 npm i -g aws-cdk@latest
 cdk bootstrap aws://$ACCOUNT/$REGION
-git clone https://github.com/your-org/model-eval-pipeline.git
-cd model-eval-pipeline
 npm install
 ```
 
 ---
 
-## Deploying
+## Deploying the stack
 
-```bash
-# Default: creates its own EventBridge bus named ModelOpsBus
-cdk deploy EvalStack
+1. **Upload initial prompt‑wrapper file** (or use the sample):
 
-# If the right‑side Deployment stack already owns a bus, pass its ARN:
-cdk deploy EvalStack -c rightStackBusArn=arn:aws:events:us-east-1:123456789012:event-bus/SharedBus
+   ```bash
+   aws s3 cp config/prompt-wrappers.json s3://modelops-config/prompt-wrappers/v1.json
+   ```
+2. **Set SSM pointer**
+
+   ```bash
+   aws ssm put-parameter \
+     --name /modelops/prompt-wrappers/version \
+     --type String \
+     --value '{"bucket":"modelops-config","key":"prompt-wrappers/v1.json"}'
+   ```
+3. **Deploy** infra & layer:
+
+   ```bash
+   cdk deploy EvalStack
+   ```
+
+   CDK outputs the state‑machine ARN, bus ARN, dataset bucket, and layer ARN.
+
+---
+
+## Prompt‑wrapper config
+
+`prompt-wrappers.json` maps regex → `{ prefix, suffix }`:
+
+```jsonc
+{
+  "rules": [
+    { "match": "^anthropic\\.", "prefix": "\\n\\nHuman: ", "suffix": "\\n\\nAssistant:" },
+    { "match": "^mistral\\.",   "prefix": "[INST] ",        "suffix": " [/INST]" },
+    { "match": "llama|meta",      "prefix": "<<SYS>>\\n",     "suffix": "\\n<</SYS>>" },
+    { "match": ".*",              "prefix": "",               "suffix": "" }
+  ]
+}
 ```
 
-Deployment takes ~90 s. **CDK outputs**:
+*Ops can update this file and just bump the SSM pointer—no CDK redeploy.*
 
-| Output | Meaning |
-|--------|---------|
-| `EvalStateMachineArn` | Invoke manually for ad‑hoc runs. |
-| `TestDatasetBucketName` | Upload JSON/CSV prompt suites here (optional). |
-| `ModelOpsBusArn` | The bus both stacks share. |
+Every evaluator calls:
+
+```ts
+import { wrapPrompt } from '/opt/nodejs/prompt-utils';
+...
+const body = JSON.stringify({
+  prompt: await wrapPrompt(modelId, rawQuestion),
+  max_tokens_to_sample: 256
+});
+```
+
+`wrapPrompt()` lazily loads & caches the JSON rules from S3 (key provided by SSM) so cold‑start cost is minimal.
 
 ---
 
 ## Triggering an evaluation
 
-### 1 . Via EventBridge (preferred)
-Until Bedrock emits model‑version events, simulate one:
+### Custom model import finished
 
 ```bash
-aws events put-events --entries '[
-  {
-    "Source":"bedrock.model",
-    "DetailType":"NewModelVersion",
-    "Detail":"{\"modelId\":\"anthropic.claude-sonnet-3.7\",\"version\":\"2025-04-30\"}",
-    "EventBusName":"<ModelOpsBusArn>"
-  }
-]'
+aws events put-events --event-bus-name ModelOpsBus --entries '[{
+  "Source":"bedrock.custom-model",
+  "DetailType":"ModelImported",
+  "Detail":"{\"modelArn\":\"arn:aws:bedrock:us-west-2:123456789012:model/myteam.credit-risk\",\"version\":\"2025-05-10\"}"
+}]'
 ```
 
-### 2 . Direct Step Functions execution (ad‑hoc)
+### Foundation model candidate
 
 ```bash
-aws stepfunctions start-execution \
-  --state-machine-arn $EvalStateMachineArn \
-  --input '{"detail":{"modelId":"anthropic.claude-sonnet-3.7","version":"manual"}}'
+aws events put-events --event-bus-name ModelOpsBus --entries '[{
+  "Source":"model-registry",
+  "DetailType":"NewCandidateModel",
+  "Detail":"{\"modelId\":\"anthropic.claude-3-opus-20240229\",\"version\":\"2025-05-09\"}"
+}]'
 ```
 
 ---
 
 ## Outputs & hand‑off  <a id="outputs--hand-off"></a>
-| Artifact | Consumer | Description |
-|----------|----------|-------------|
-| **EventBridge event** `Source=llmops.evaluator`, `DetailType=ModelApproved` | Deployment stack | Triggers API Gateway weighted shift. |
-| **SSM param** `/modelops/approved/current` | Dashboards / infra | Holds latest approved `{ modelId, version }`. |
-| **DynamoDB EvalMetadata** | Audit / BI | Stores `runId`, scores, timestamps, pass/fail. |
-| **CloudWatch Logs & X‑Ray** | Ops / Sec | Full execution trace of each evaluator. |
+
+| Artifact                           | Consumer         | Purpose                                               |                       |
+| ---------------------------------- | ---------------- | ----------------------------------------------------- | --------------------- |
+| `ModelApproved` EventBridge event  | Deployment stack | Shifts API Gateway weights.                           |                       |
+| `/modelops/approved/current` (SSM) | Dashboards/infra | Latest approved \`{modelId                            | modelArn, version}\`. |
+| DynamoDB `EvalMetadata`            | Audit            | Stores runId, scores, results.                        |                       |
+| CloudWatch Logs                    | Debug            | Shows `wrapPrompt` mapping, raw event, scored output. |                       |
 
 ---
 
 ## Environment variables & CDK context  <a id="environment-variables--cdk-context"></a>
-| Variable | Set on | Purpose |
-|----------|--------|---------|
-| `DATASET_BUCKET` | every evaluator | S3 bucket for optional prompt files. |
-| `TABLE_NAME` | result‑aggregator | DynamoDB lineage storage. |
-| `EVENT_BUS_ARN` | result‑aggregator | Where to publish `ModelApproved`. |
-| `rightStackBusArn` (CDK context) | `cdk deploy -c` | Re‑use an existing EventBridge bus instead of creating one. |
+
+| Name                         | Set on          | Description                                  |
+| ---------------------------- | --------------- | -------------------------------------------- |
+| `DATASET_BUCKET`             | evaluators      | Offline test corpus location.                |
+| `TABLE_NAME`                 | aggregator      | DynamoDB lineage table.                      |
+| `EVENT_BUS_ARN`              | aggregator      | Where to emit `ModelApproved`.               |
+| `DEFAULT_MODEL_ID`           | evaluators      | Fallback if event lacks modelId.             |
+| `rightStackBusArn` (CDK ctx) | `cdk deploy -c` | Re‑use existing bus instead of creating one. |
 
 ---
 
-## Extending / production‑hardening  <a id="extending--production-hardening"></a>
-| Area | Recommendation |
-|------|----------------|
-| **Prompt management** | Store test cases in S3 (JSON/CSV) and load dynamically. |
-| **Concurrency** | Wrap each evaluator in a `Map` state with `maxConcurrency` to parallelise > 100 prompts. |
-| **Judge model** | Replace public Claude 3 Opus with a private eval model. |
-| **Security** | Restrict `bedrock:InvokeModel` to specific ARNs; enable SSE‑KMS and X‑Ray. |
-| **Cost control** | Lower sample counts in `LatencyP95Fn`; use streaming. |
-| **Failure alarms** | CloudWatch alarm on `EvalStateMachine FAILED`. |
-| **CI/CD** | Integrate `cdk synth` + unit tests in pipeline. |
+## Extending / hardening  <a id="extending--hardening"></a>
+
+* **Tunable thresholds**: move pass/fail scores to `ssm:/modelops/thresholds.json`.
+* **Concurrency**: wrap prompts in SFN `Map` state for large test sets.
+* **Observability**: enable X‑Ray, add CW alarms on state‑machine `FAILED`.
+* **Security**: restrict `bedrock:InvokeModel` to specific ARNs; encrypt S3 + DynamoDB with KMS.
 
 ---
 
-## Troubleshooting & common gotchas  <a id="troubleshooting--common-gotchas"></a>
-| Symptom | Likely cause | Fix |
-|---------|-------------|-----|
-| **State machine fails with `States.TaskFailed`** | Lambda timeout or Bedrock permission | • Increase `timeout` in `mkFn()`.<br>• Ensure IAM role has `bedrock:InvokeModel`. |
-| **`ModelApproved` not received by Deployment stack** | Bus mismatch | Verify both stacks use the same EventBridge bus ARN. |
-| **Latency check always fails** | SLA too strict for region | Adjust `MAX_P95_MS` in `eval-latency/index.ts`. |
-| **CDK deploy hangs at Lambda bundling** | `esbuild` memory exhaustion | `export ESBUILD_BINARY_PATH=$(which esbuild)` or pre‑build locally then `cdk deploy --no-asset-metadata`. |
+## Troubleshooting  <a id="troubleshooting"></a>
+
+| Symptom                                                          | Likely cause                                                                            | Resolution                                                                                                                                   |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ValidationException: The provided model identifier is invalid.` | Event `modelId` not available in Region or Wrapper driver falling back to wrong default | List models: `aws bedrock list-foundation-models --region us-west-2 --query "modelSummaries[].modelId"`. Update event or `DEFAULT_MODEL_ID`. |
+| `prompt must start with "\n\nHuman:"`                            | Prompt not wrapped; wrapper JSON missing regex                                          | Verify `prompt-wrappers.json` rule matches the modelId; bump SSM pointer.                                                                    |
+| Docker build fails during CDK deploy                             | Docker Desktop not running                                                              | Launch Docker Desktop and retry.                                                                                                             |
+| State machine succeeds but Deployment stack never shifts         | Deployment stack listening on wrong bus                                                 | Check `ModelOpsBusArn` output and EventBridge rule in right‑side stack.                                                                      |
 
 ---
 
-### Questions?
-Contact jsmithac@ or virpadte@
+### Need help?
+
+Contact jsmithac or virpadte \[at\] amazon \[dot\] com
