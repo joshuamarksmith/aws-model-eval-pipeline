@@ -63,8 +63,8 @@ model-eval-pipeline/
 │   ├─ eval‑privacy/index.ts
 │   ├─ eval‑latency/index.ts
 │   └─ eval‑qualitative/index.ts
-├─ layer/ prompt-utils/             # Lambda Layer (wrapPrompt)
-│   └─ prompt-utils.ts
+├─ layer/prompt-utils/          # chat wrapper helper (Node layer)
+│   └─ nodejs/node_modules/prompt-utils/
 ├─ config/ prompt-wrappers.json     # Model‑to‑template mapping
 ├─ package.json  tsconfig.json  cdk.json
 └─ README.md (this file)
@@ -210,6 +210,20 @@ aws events put-events --event-bus-name ModelOpsBus --entries '[{
 | `prompt must start with "\n\nHuman:"`                            | Prompt not wrapped; wrapper JSON missing regex                                          | Verify `prompt-wrappers.json` rule matches the modelId; bump SSM pointer.                                                                    |
 | Docker build fails during CDK deploy                             | Docker Desktop not running                                                              | Launch Docker Desktop and retry.                                                                                                             |
 | State machine succeeds but Deployment stack never shifts         | Deployment stack listening on wrong bus                                                 | Check `ModelOpsBusArn` output and EventBridge rule in right‑side stack.                                                                      |
+
+---
+
+## Adapting to real‑world journeys
+
+| Demo layer                         | Swap‑in alternative                                                  | Why / when                                                    |
+| ---------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------- |
+| **Latency Lambda**                 | Direct SFN SDK → `bedrock-runtime:invokeModel` (Map + IntrinsicMath) | No custom code, fine‑grained cost control.                    |
+| **LLM‑Judge Lambda**               | Bedrock **ModelEvaluation** job (`createEvaluationJob`)              | Large datasets, AWS‑managed scoring, audit to S3.             |
+| **Fair‑Lending / Privacy Lambdas** | Call Compliance’s existing API (function URL or API GW)              | Keeps policy logic outside DevOps code.                       |
+| **Regex heuristics**               | **Bedrock Guardrails Automated Reasoning** (Preview)                 | AWS‑maintained safety & policy checks.                        |
+| **prompt‑wrappers JSON**           | DynamoDB or AppConfig                                                | Ops can change chat wrappers instantly without S3 versioning. |
+
+Each swap keeps the `{check, score, passed}` contract, so the aggregator and deployment logic never change.
 
 ---
 
