@@ -1,3 +1,8 @@
+# AWS CLI and CDK build artifacts
+AWSCLIV2.pkg
+.cdk.staging
+cdk.out
+
 # Ignore all node_modules folders
 **/node_modules/
 
