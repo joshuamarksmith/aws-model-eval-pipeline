@@ -1,0 +1,293 @@
+{
+  "version": "36.0.0",
+  "artifacts": {
+    "EvalStack.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "EvalStack.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "EvalStack": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://028889494675/us-west-2",
+      "properties": {
+        "templateFile": "EvalStack.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::028889494675:role/cdk-hnb659fds-deploy-role-028889494675-us-west-2",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::028889494675:role/cdk-hnb659fds-cfn-exec-role-028889494675-us-west-2",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-028889494675-us-west-2/c42a22b8ea9c84fdee4f678ccc9ca42690e5f9988aecc4f647cf71a5ae456d0e.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "EvalStack.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::028889494675:role/cdk-hnb659fds-lookup-role-028889494675-us-west-2",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "EvalStack.assets"
+      ],
+      "metadata": {
+        "/EvalStack/TestDatasetBucket/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TestDatasetBucket89E2E978"
+          }
+        ],
+        "/EvalStack/EvalMetadata/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EvalMetadata84034AEC"
+          }
+        ],
+        "/EvalStack/ModelOpsBus/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ModelOpsBus5B894D4D"
+          }
+        ],
+        "/EvalStack/PromptUtilsLayer/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PromptUtilsLayer22CB464A"
+          }
+        ],
+        "/EvalStack/TestSuiteSelectorFn/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TestSuiteSelectorFnServiceRoleF231CB48"
+          }
+        ],
+        "/EvalStack/TestSuiteSelectorFn/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TestSuiteSelectorFnServiceRoleDefaultPolicy6F1BA225"
+          }
+        ],
+        "/EvalStack/TestSuiteSelectorFn/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TestSuiteSelectorFnE7707EF5"
+          }
+        ],
+        "/EvalStack/FactualFn/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FactualFnServiceRole9E7B6E3D"
+          }
+        ],
+        "/EvalStack/FactualFn/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FactualFnServiceRoleDefaultPolicy8063476F"
+          }
+        ],
+        "/EvalStack/FactualFn/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FactualFn9DF31D9A"
+          }
+        ],
+        "/EvalStack/RegFn/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RegFnServiceRole655AD6DC"
+          }
+        ],
+        "/EvalStack/RegFn/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RegFnServiceRoleDefaultPolicy1353039E"
+          }
+        ],
+        "/EvalStack/RegFn/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "RegFn730F53B0"
+          }
+        ],
+        "/EvalStack/FairFn/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FairFnServiceRole806BC58B"
+          }
+        ],
+        "/EvalStack/FairFn/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FairFnServiceRoleDefaultPolicy97AE85E6"
+          }
+        ],
+        "/EvalStack/FairFn/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "FairFn967F9AF6"
+          }
+        ],
+        "/EvalStack/PrivFn/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PrivFnServiceRoleECF2441C"
+          }
+        ],
+        "/EvalStack/PrivFn/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PrivFnServiceRoleDefaultPolicyE04C5A6C"
+          }
+        ],
+        "/EvalStack/PrivFn/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PrivFn1309965F"
+          }
+        ],
+        "/EvalStack/LatencyFn/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LatencyFnServiceRole1CBD32BE"
+          }
+        ],
+        "/EvalStack/LatencyFn/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LatencyFnServiceRoleDefaultPolicyAD51F894"
+          }
+        ],
+        "/EvalStack/LatencyFn/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "LatencyFnCF8983A8"
+          }
+        ],
+        "/EvalStack/JudgeFn/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "JudgeFnServiceRole77CEC89D"
+          }
+        ],
+        "/EvalStack/JudgeFn/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "JudgeFnServiceRoleDefaultPolicy0F84BEF4"
+          }
+        ],
+        "/EvalStack/JudgeFn/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "JudgeFn5671F593"
+          }
+        ],
+        "/EvalStack/AggregatorFn/ServiceRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AggregatorFnServiceRole6CE3940B"
+          }
+        ],
+        "/EvalStack/AggregatorFn/ServiceRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AggregatorFnServiceRoleDefaultPolicy8010F11E"
+          }
+        ],
+        "/EvalStack/AggregatorFn/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "AggregatorFn2C893BCE"
+          }
+        ],
+        "/EvalStack/EvalStateMachine/Role/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EvalStateMachineRole536BFA04"
+          }
+        ],
+        "/EvalStack/EvalStateMachine/Role/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EvalStateMachineRoleDefaultPolicy15985584"
+          }
+        ],
+        "/EvalStack/EvalStateMachine/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EvalStateMachine4ED22B18"
+          }
+        ],
+        "/EvalStack/EvalStateMachine/EventsRole/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EvalStateMachineEventsRoleE120CDF1"
+          }
+        ],
+        "/EvalStack/EvalStateMachine/EventsRole/DefaultPolicy/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EvalStateMachineEventsRoleDefaultPolicy73A571A1"
+          }
+        ],
+        "/EvalStack/TriggerEval/Resource": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TriggerEval44028C95"
+          }
+        ],
+        "/EvalStack/EvalStateMachineArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "EvalStateMachineArn"
+          }
+        ],
+        "/EvalStack/ModelOpsBusArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "ModelOpsBusArn"
+          }
+        ],
+        "/EvalStack/TestDatasetBucketName": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "TestDatasetBucketName"
+          }
+        ],
+        "/EvalStack/PromptUtilsLayerArn": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "PromptUtilsLayerArn"
+          }
+        ],
+        "/EvalStack/CDKMetadata/Default": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CDKMetadata"
+          }
+        ],
+        "/EvalStack/BootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "BootstrapVersion"
+          }
+        ],
+        "/EvalStack/CheckBootstrapVersion": [
+          {
+            "type": "aws:cdk:logicalId",
+            "data": "CheckBootstrapVersion"
+          }
+        ]
+      },
+      "displayName": "EvalStack"
+    },
+    "Tree": {
+      "type": "cdk:tree",
+      "properties": {
+        "file": "tree.json"
+      }
+    }
+  }
+}

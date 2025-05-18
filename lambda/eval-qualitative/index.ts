@@ -1,91 +1,71 @@
-import {
-  BedrockRuntimeClient,
-  InvokeModelCommand
-} from '@aws-sdk/client-bedrock-runtime';
+import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
+import { wrapPrompt } from 'prompt-utils';
 
-const candidateClient = new BedrockRuntimeClient({});
-const judgeClient     = new BedrockRuntimeClient({});
+/*
+ * This is a simple qualitative evaluation of the model's ability to follow instructions.
+ * It uses a simple prompt to generate a candidate answer, and then a judge model to score it.
+ * The judge model is a small model that is trained to score the candidate answer.
 
-interface Case {
-  prompt: string;
-  reference: string;
-}
-const cases: Case[] = [
-  {
-    prompt: 'Explain the difference between Tier 1 and Tier 2 capital.',
-    reference:
-      'Tier 1 capital consists primarily of common equity and disclosed reserves; Tier 2 includes subordinated debt, hybrid instruments, and loan‑loss reserves.'
-  },
-  {
-    prompt: 'What triggers a SAR filing under the Bank Secrecy Act?',
-    reference:
-      'Any transaction of $5 000 or more that the institution knows, suspects, or has reason to suspect involves funds derived from illegal activity, is designed to evade regulations, or has no lawful purpose.'
-  },
-  {
-    prompt: 'State the Volcker Rule’s main limitation on proprietary trading.',
-    reference:
-      'It generally prohibits banking entities from engaging in short‑term proprietary trading of securities, derivatives, and certain other instruments for the firm’s own account.'
-  },
-  {
-    prompt: 'Describe the purpose of the Net Stable Funding Ratio.',
-    reference:
-      'NSFR ensures banks maintain a stable funding profile in relation to the composition of their assets and off‑balance‑sheet activities over a one‑year horizon.'
-  },
-  {
-    prompt: 'Define “beneficial ownership” under FinCEN’s CDD rule.',
-    reference:
-      'Each legal‑entity customer must disclose any individual who owns 25 % or more of the equity interests and one individual with significant managerial control.'
-  }
+ Why do we use Lambdas for this?
+ 
+ * Looping & aggregation logic (P95 latency, averaging judge scores) is much simpler in code than 
+   stitching together Map+IntrinsicMath+Choice states.
+
+ * JSON parsing of the Bedrock response and extracting fields is trivial in a few lines of TypeScript. 
+   In Step Functions you’d need extra Pass states, ResultSelector s and Intrinsic functions, which quickly becomes hard to maintain.
+
+ * Reusability: by centralizing your logic in Lambdas, you can unit-test them in isolation, 
+   add richer error handling, and share libraries (e.g. wrapPrompt) without copying DSL snippets across state machines.
+ */  
+
+const candClient         = new BedrockRuntimeClient({});
+const judgeClient        = new BedrockRuntimeClient({});
+const CANDIDATE_DEFAULT  = process.env.DEFAULT_MODEL_ID!;
+const JUDGE_MODEL_ID     = process.env.JUDGE_MODEL_ID!;
+const PASS_SCORE         = 0.75;
+const CASES              = [
+  { q: 'Explain Tier 1 vs Tier 2 capital.', ref: 'Tier 1 = common equity; Tier 2 = subordinated debt & reserves.' },
+  { q: 'When must banks file a SAR?',       ref: 'Any $5k+ suspect transaction within 30 days.' },
+  { q: 'State the Volcker Rule limitation.',ref: 'Prohibits short-term proprietary trading by banking entities.' },
+  { q: 'Purpose of Net Stable Funding Ratio?', ref: 'Ensures stable funding vs asset/liability mix.' },
+  { q: 'Define beneficial ownership under CDD.', ref: '25%+ equity owners & one managerial control person.' }
 ];
 
-const JUDGE_MODEL = 'anthropic.claude-3-opus-20240229';
-const PASSING_AVG = 0.75;            // ≥ 3 / 4 on 1‑4 rubric
-
 export const handler = async (event: any) => {
-  const detail = event.detail ?? {};
-  const candidateModel = detail.modelId ?? 'anthropic.claude-sonnet-3.7';
+  const detail      = event.detail ?? {};
+  const candidateId = detail.modelId ?? CANDIDATE_DEFAULT;
+  console.log(`▶️ Candidate model: ${candidateId}`);
 
   let totalScore = 0;
+  for (const { q, ref } of CASES) {
+    // 1) generate candidate answer
+    const candPrompt = await wrapPrompt(candidateId, q);
+    const candRes: any = await candClient.send(new InvokeModelCommand({
+      modelId: candidateId,
+      contentType: 'application/json',
+      accept: 'application/json',
+      body: JSON.stringify({ prompt: candPrompt, max_tokens_to_sample: 128 })
+    }));
+    const candAns = JSON.parse(new TextDecoder().decode(candRes.body)).completion;
 
-  for (const { prompt, reference } of cases) {
-    /* 1. get candidate answer */
-    const candResp: any = await candidateClient.send(
-      new InvokeModelCommand({
-        modelId: candidateModel,
-        contentType: 'application/json',
-        accept: 'application/json',
-        body: JSON.stringify({ prompt, max_tokens_to_sample: 192 })
-      })
-    );
-    const candidateAnswer = JSON.parse(
-      new TextDecoder().decode(candResp.body)
-    ).completion;
-
-    /* 2. let judge model grade it */
+    // 2) judge with the stronger model
     const judgePrompt = `
-You are an expert grader.  The candidate answer should be compared to the reference answer.
-Give ONLY a JSON object with keys:
-- "score" (integer 1‑4 where 4 = fully correct)
-Do not output any other text.
-
-Question: ${prompt}
-Reference answer: ${reference}
-Candidate answer: ${candidateAnswer}
+You are an expert grader.  Compare the candidate answer to the reference.
+Provide ONLY a JSON {"score":<1–4>}.
+Question: ${q}
+Reference: ${ref}
+Candidate: ${candAns}
 `;
-    const judgeResp: any = await judgeClient.send(
-      new InvokeModelCommand({
-        modelId: JUDGE_MODEL,
-        contentType: 'application/json',
-        accept: 'application/json',
-        body: JSON.stringify({ prompt: judgePrompt, max_tokens_to_sample: 32 })
-      })
-    );
-    const parsed = JSON.parse(
-      new TextDecoder().decode(judgeResp.body)
-    ).completion;
-    totalScore += parsed.score ?? 0;
+    const judgeRes: any = await judgeClient.send(new InvokeModelCommand({
+      modelId: JUDGE_MODEL_ID,
+      contentType: 'application/json',
+      accept: 'application/json',
+      body: JSON.stringify({ prompt: judgePrompt, max_tokens_to_sample: 32 })
+    }));
+    const { score } = JSON.parse(new TextDecoder().decode(judgeRes.body)).completion;
+    totalScore += score;
   }
 
-  const avg = totalScore / (cases.length * 4); // normalise 0‑1
-  return { check: 'LLMJudge', score: avg, passed: avg >= PASSING_AVG };
+  const avg = totalScore / (CASES.length * 4);
+  return { check: 'LLMJudge', score: avg, passed: avg >= PASS_SCORE };
 };
