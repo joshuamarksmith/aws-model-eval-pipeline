@@ -1,5 +1,5 @@
 import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
-import { wrapPrompt } from 'prompt-utils';
+import { wrapPrompt } from '../../layer/prompt-utils/nodejs/node_modules/prompt-utils';
 
 /*
  * This is a simple factual accuracy evaluation.
