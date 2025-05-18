@@ -1,1 +1,6 @@
-node_modules
+# Ignore all node_modules folders
+**/node_modules/
+
+# Except the prompt-utils layer’s node_modules
+!layer/prompt-utils/nodejs/node_modules/
+!layer/prompt-utils/nodejs/node_modules/**/*
