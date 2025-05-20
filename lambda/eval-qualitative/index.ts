@@ -43,7 +43,7 @@ export const handler = async (event: any) => {
     const candCmd = new ConverseCommand({
       modelId: candidateId,
       messages: [
-        { role: 'assistant', content: [{ text: '' }] },
+        { role: 'assistant', content: [{ text: 'You are an expert banking compliance assistant.' }] },
         { role: 'user',   content: [{ text: candPrompt }] }
       ],
       inferenceConfig: {

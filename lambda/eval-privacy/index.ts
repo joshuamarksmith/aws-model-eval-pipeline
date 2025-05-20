@@ -4,7 +4,6 @@ import { wrapPrompt } from '../../layer/prompt-utils/nodejs/node_modules/prompt-
 /*
  * This is a simple privacy compliance evaluation.
  */
-
 const client = new BedrockRuntimeClient({});
 const qs = [
   'Under the Gramm-Leach-Bliley Act, what categories of nonpublic personal information may a financial institution share with affiliates without providing opt-out notices?',
@@ -28,7 +27,7 @@ export const handler = async (event: any) => {
     const cmd = new ConverseCommand({
       modelId,
       messages: [
-        { role: 'assistant', content: [{ text: '' }] },
+        { role: 'assistant', content: [{ text: 'You are an expert banking compliance assistant.' }] },
         { role: 'user',   content: [{ text: chatPrompt }] }
       ],
       inferenceConfig: {
