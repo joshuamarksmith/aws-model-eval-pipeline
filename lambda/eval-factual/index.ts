@@ -24,7 +24,6 @@ export const handler = async (event: any) => {
     const cmd = new ConverseCommand({
       modelId,
       messages: [
-        { role: 'assistant', content: [{ text: 'You are an expert banking compliance assistant.' }] },
         { role: 'user',   content: [{ text: chatPrompt }] }
       ],
       inferenceConfig: {

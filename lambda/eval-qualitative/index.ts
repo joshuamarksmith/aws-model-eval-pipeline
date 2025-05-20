@@ -43,7 +43,6 @@ export const handler = async (event: any) => {
     const candCmd = new ConverseCommand({
       modelId: candidateId,
       messages: [
-        { role: 'assistant', content: [{ text: 'You are an expert banking compliance assistant.' }] },
         { role: 'user',   content: [{ text: candPrompt }] }
       ],
       inferenceConfig: {
@@ -59,8 +58,10 @@ export const handler = async (event: any) => {
     const judgeCmd = new ConverseCommand({
       modelId: judgeModelId,
       messages: [
-        { role: 'assistant', content: [{ text: 'You are an expert grader. Return only JSON {\"score\":<1-4>}.' }] },
         { role: 'user',   content: [{ text: `Question: ${q}\nReference: ${ref}\nCandidate: ${candAns}` }] }
+      ],
+      system: [
+        { "text": "You are an expert grader. Return only JSON {\"score\":<1-4>}." }
       ],
       inferenceConfig: {
         maxTokens: 32,
