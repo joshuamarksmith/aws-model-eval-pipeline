@@ -1,9 +1,5 @@
-import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
+import { BedrockRuntimeClient, ConverseCommand } from '@aws-sdk/client-bedrock-runtime';
 import { wrapPrompt } from '../../layer/prompt-utils/nodejs/node_modules/prompt-utils';
-
-/*
- * This is a simple factual accuracy evaluation.
- */
 
 const client = new BedrockRuntimeClient({});
 const qs = [
@@ -16,32 +12,37 @@ const qs = [
 const THRESHOLD = 0.8;
 
 export const handler = async (event: any) => {
-  console.log('▶️ Raw event:', JSON.stringify(event));
+  console.log('Raw event:', JSON.stringify(event));
   const detail  = event.detail ?? {};
   const modelId = detail.modelId ?? process.env.DEFAULT_MODEL_ID!;
-  console.log(`🔍 Invoking model: ${modelId}`);
+  console.log(`Invoking model: ${modelId}`);
 
   let correct = 0;
   for (const rawQ of qs) {
-    const prompt = await wrapPrompt(modelId, rawQ);
-    const body = JSON.stringify({
+    const chatPrompt = await wrapPrompt(modelId, rawQ);
+
+    const cmd = new ConverseCommand({
+      modelId,
       messages: [
-        { role: 'system', content: '' },
-        { role: 'user',   content: prompt }
+        { role: 'assistant', content: [{ text: '' }] },
+        { role: 'user',   content: [{ text: chatPrompt }] }
       ],
-      max_tokens_to_sample: 256
+      inferenceConfig: {
+        maxTokens: 256,
+        temperature: 0,
+        topP: 1.0
+      }
     });
-    const res: any = await client.send(
-      new InvokeModelCommand({ modelId, contentType: 'application/json', accept: 'application/json', body })
-    );
-    const answer = JSON.parse(new TextDecoder().decode(res.body)).completion.toLowerCase();
+
+    const res: any = await client.send(cmd);
+    const answer = res.output.message.content[0].text.toLowerCase();
 
     if (
       (rawQ.includes('reserve requirement') && /\d+(\.\d+)?%/.test(answer)) ||
       (rawQ.includes('Tier 1 capital')       && answer.includes('common equity')) ||
-      (rawQ.includes('LIBOR to SOFR')         && answer.includes('alternative reference rates committee')) ||
-      (rawQ.includes('FDIC')                  && answer.includes('250,000')) ||
-      (rawQ.includes('Dodd-Frank')            && answer.includes('2010'))
+      (rawQ.includes('libor to sofr')        && answer.includes('alternative reference rates committee')) ||
+      (rawQ.includes('fdic')                 && answer.includes('250,000')) ||
+      (rawQ.includes('dodd-frank')           && answer.includes('2010'))
     ) {
       correct++;
     }

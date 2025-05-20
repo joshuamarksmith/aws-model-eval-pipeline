@@ -1,4 +1,4 @@
-import { BedrockRuntimeClient, InvokeModelCommand } from '@aws-sdk/client-bedrock-runtime';
+import { BedrockRuntimeClient, ConverseCommand } from '@aws-sdk/client-bedrock-runtime';
 import { wrapPrompt } from '../../layer/prompt-utils/nodejs/node_modules/prompt-utils';
 
 /*
@@ -16,26 +16,33 @@ const qs = [
 const THRESHOLD = 0.7;
 
 export const handler = async (event: any) => {
-  console.log('▶️ Raw event:', JSON.stringify(event));
+  console.log('Raw event:', JSON.stringify(event));
   const detail  = event.detail ?? {};
   const modelId = detail.modelId ?? process.env.DEFAULT_MODEL_ID!;
-  console.log(`🔍 Invoking model: ${modelId}`);
+  console.log(`Invoking model: ${modelId}`);
 
   let hits = 0;
   for (const rawQ of qs) {
-    const prompt = await wrapPrompt(modelId, rawQ);
-    const body = JSON.stringify({
+    const chatPrompt = await wrapPrompt(modelId, rawQ);
+
+    const cmd = new ConverseCommand({
+      modelId,
       messages: [
-        { role: 'system', content: '' },
-        { role: 'user',   content: prompt }
+        { role: 'assistant', content: [{ text: '' }] },
+        { role: 'user',   content: [{ text: chatPrompt }] }
       ],
-      max_tokens_to_sample: 256
+      inferenceConfig: {
+        maxTokens: 256,
+        temperature: 0,
+        topP: 1.0
+      }
     });
-    const res: any = await client.send(
-      new InvokeModelCommand({ modelId, contentType: 'application/json', accept: 'application/json', body })
-    );
-    const text = JSON.parse(new TextDecoder().decode(res.body)).completion.toLowerCase();
-    if (/§|\b(cfr|usc)\b|\d+(\.\d+)?/.test(text)) hits++;
+
+    const res: any = await client.send(cmd);
+    const text = res.output.message.content[0].text.toLowerCase();
+    if (/§|\b(cfr|usc)\b|\d+(\.\d+)?/.test(text)) {
+      hits++;
+    }
   }
 
   const score = hits / qs.length;
