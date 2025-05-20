@@ -121,6 +121,23 @@ export class EvaluationStack extends Stack {
       }))
     );
 
+    const configBucket = 'modelops-config-334f70cce93f';
+    const wrapperKeyPrefix = 'prompt-wrappers/';
+    const wrapperArn = `arn:aws:s3:::${configBucket}/${wrapperKeyPrefix}*`;
+
+    [
+      factualFn,
+      regFn,
+      fairFn,
+      privFn,
+      judgeFn
+    ].forEach(fn =>
+      fn.addToRolePolicy(new iam.PolicyStatement({
+        actions: ['s3:GetObject'],
+        resources: [wrapperArn],
+      }))
+    );
+
     evalTable.grantWriteData(aggregatorFn);
     aggregatorFn.addToRolePolicy(
       new iam.PolicyStatement({
