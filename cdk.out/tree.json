@@ -485,6 +485,11 @@
                                   "Action": "bedrock:InvokeModel",
                                   "Effect": "Allow",
                                   "Resource": "*"
+                                },
+                                {
+                                  "Action": "ssm:GetParameter",
+                                  "Effect": "Allow",
+                                  "Resource": "arn:aws:ssm:us-west-2:028889494675:parameter/modelops/prompt-wrappers/version"
                                 }
                               ],
                               "Version": "2012-10-17"
@@ -548,7 +553,7 @@
                   "aws:cdk:cloudformation:props": {
                     "code": {
                       "s3Bucket": "cdk-hnb659fds-assets-028889494675-us-west-2",
-                      "s3Key": "12660655a4467e421ad245a424ac33682768019a6de8ea7c54823b4fb2362abc.zip"
+                      "s3Key": "d73e7d99cf9af12b289119367095a22fd57c96e019f234a73959db192f2dac0a.zip"
                     },
                     "environment": {
                       "variables": {
@@ -698,6 +703,11 @@
                                   "Action": "bedrock:InvokeModel",
                                   "Effect": "Allow",
                                   "Resource": "*"
+                                },
+                                {
+                                  "Action": "ssm:GetParameter",
+                                  "Effect": "Allow",
+                                  "Resource": "arn:aws:ssm:us-west-2:028889494675:parameter/modelops/prompt-wrappers/version"
                                 }
                               ],
                               "Version": "2012-10-17"
@@ -761,7 +771,7 @@
                   "aws:cdk:cloudformation:props": {
                     "code": {
                       "s3Bucket": "cdk-hnb659fds-assets-028889494675-us-west-2",
-                      "s3Key": "76e064f934d36621a2548abc2d857252043174e02bd184c96f4f6d10ae08d17a.zip"
+                      "s3Key": "5faa911cad6cb0d3d61e3ea90db7e940d03666f1ddfc1f54d68947343614dc60.zip"
                     },
                     "environment": {
                       "variables": {
@@ -911,6 +921,11 @@
                                   "Action": "bedrock:InvokeModel",
                                   "Effect": "Allow",
                                   "Resource": "*"
+                                },
+                                {
+                                  "Action": "ssm:GetParameter",
+                                  "Effect": "Allow",
+                                  "Resource": "arn:aws:ssm:us-west-2:028889494675:parameter/modelops/prompt-wrappers/version"
                                 }
                               ],
                               "Version": "2012-10-17"
@@ -974,7 +989,7 @@
                   "aws:cdk:cloudformation:props": {
                     "code": {
                       "s3Bucket": "cdk-hnb659fds-assets-028889494675-us-west-2",
-                      "s3Key": "7329261dd454181da4f4b10c8cc26297336625d15a8ac08fc5da1b08309e59fa.zip"
+                      "s3Key": "3a07ee1119c50b6575d62fb435b26528b6a8e07c53d7d42a863bb70c1f10c34d.zip"
                     },
                     "environment": {
                       "variables": {
@@ -1124,6 +1139,11 @@
                                   "Action": "bedrock:InvokeModel",
                                   "Effect": "Allow",
                                   "Resource": "*"
+                                },
+                                {
+                                  "Action": "ssm:GetParameter",
+                                  "Effect": "Allow",
+                                  "Resource": "arn:aws:ssm:us-west-2:028889494675:parameter/modelops/prompt-wrappers/version"
                                 }
                               ],
                               "Version": "2012-10-17"
@@ -1187,7 +1207,7 @@
                   "aws:cdk:cloudformation:props": {
                     "code": {
                       "s3Bucket": "cdk-hnb659fds-assets-028889494675-us-west-2",
-                      "s3Key": "cba15b55cd059ff3db7d7e433337e5b632bc41b9e8fb1de51029302babed1f84.zip"
+                      "s3Key": "51a30fb4992a58d9319864f9a0876b0221b312cdf7352ec40e5ef641b9ab50c1.zip"
                     },
                     "environment": {
                       "variables": {
@@ -1370,7 +1390,7 @@
                   "aws:cdk:cloudformation:props": {
                     "code": {
                       "s3Bucket": "cdk-hnb659fds-assets-028889494675-us-west-2",
-                      "s3Key": "15ee6887515d3ffe4f585dbbe87ab535c7b4ad30a901f9b0c328d46ad3ae0045.zip"
+                      "s3Key": "a86591989a4ac51f1ed2c5cccaad1eb3627933c5398d68a86e4871de70a3df34.zip"
                     },
                     "environment": {
                       "variables": {
@@ -1490,6 +1510,11 @@
                                   "Action": "bedrock:InvokeModel",
                                   "Effect": "Allow",
                                   "Resource": "*"
+                                },
+                                {
+                                  "Action": "ssm:GetParameter",
+                                  "Effect": "Allow",
+                                  "Resource": "arn:aws:ssm:us-west-2:028889494675:parameter/modelops/prompt-wrappers/version"
                                 }
                               ],
                               "Version": "2012-10-17"
@@ -1553,7 +1578,7 @@
                   "aws:cdk:cloudformation:props": {
                     "code": {
                       "s3Bucket": "cdk-hnb659fds-assets-028889494675-us-west-2",
-                      "s3Key": "f399b80ede9569f553da6c3ce2b78b3e92cb9803ffd44b3c5a1d38551c117fae.zip"
+                      "s3Key": "b26b630c1dc44c075b6cfb8decfa4161cd9958b6fb81def1d0f3cbef79efe5e2.zip"
                     },
                     "environment": {
                       "variables": {

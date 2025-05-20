@@ -105,6 +105,21 @@ export class EvaluationStack extends Stack {
         })
       )
     );
+    
+    [
+      factualFn,
+      regFn,
+      fairFn,
+      privFn,
+      judgeFn,
+    ].forEach(fn =>
+      fn.addToRolePolicy(new iam.PolicyStatement({
+        actions: ["ssm:GetParameter"],
+        resources: [
+          `arn:aws:ssm:${this.region}:${this.account}:parameter/modelops/prompt-wrappers/version`
+        ],
+      }))
+    );
 
     evalTable.grantWriteData(aggregatorFn);
     aggregatorFn.addToRolePolicy(
