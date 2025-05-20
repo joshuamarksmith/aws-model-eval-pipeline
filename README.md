@@ -1,6 +1,8 @@
 # Model‑Evaluation Pipeline (Left‑Side Stack)
 
-*Automated, model‑agnostic vetting & approval of LLM candidates before API‑Gateway deployment*
+*1/2 of a complete solution for automated, model‑agnostic vetting & approval of LLM candidates before deployment*
+
+![Diagram of Architecture](assets/img/diagram-01.png)
 
 ---
 
@@ -54,6 +56,10 @@ Each Lambda first calls **`wrapPrompt(modelId, rawText)`** (from a shared layer)
 
 ```text
 model-eval-pipeline/
+├─ assets
+│   ├─ img/
+│   └─ json/
+│       └─prompt-wrappers.json      # Prompt wrapping to upload to s3
 ├─ bin/evaluation.ts                # CDK entry‑point
 ├─ lib/evaluation-stack.ts          # Core infra
 ├─ lambda/                          # 6 evaluator handlers
@@ -63,23 +69,25 @@ model-eval-pipeline/
 │   ├─ eval‑privacy/index.ts
 │   ├─ eval‑latency/index.ts
 │   └─ eval‑qualitative/index.ts
-├─ layer/prompt-utils/          # chat wrapper helper (Node layer)
+├─ layer/prompt-utils/              # chat wrapper helper
 │   └─ nodejs/node_modules/prompt-utils/
 ├─ config/ prompt-wrappers.json     # Model‑to‑template mapping
 ├─ package.json  tsconfig.json  cdk.json
-└─ README.md (this file)
+├─ scripts/
+│   └─ bootstrap.sh deploy.sh
+└─ README.md
 ```
 
 ---
 
 ## Prerequisites & bootstrap
 
-| Tool           | Version                                                    |
-| -------------- | ---------------------------------------------------------- |
-| Node.js        | 18 LTS                                                     |
-| AWS CDK        | ≥ 2.139                                                    |
-| Docker Desktop | running (for Lambda bundling)                              |
-| IAM perms      | CDK bootstrap, Bedrock `InvokeModel`, SSM, S3, EventBridge |
+| Tool           | Version                                                        |
+| -------------- | -------------------------------------------------------------- |
+| Node.js        | 18 LTS                                                         |
+| AWS CDK        | ≥ 2.139                                                        |
+| Docker Desktop | running (for Lambda bundling)                                  |
+| IAM perms      | CDK bootstrap, Bedrock `ConverseCommand`, SSM, S3, EventBridge |
 
 ```bash
 npm i -g aws-cdk@latest
@@ -94,7 +102,7 @@ npm install
 1. **Upload initial prompt‑wrapper file** (or use the sample):
 
    ```bash
-   aws s3 cp config/prompt-wrappers.json s3://modelops-config/prompt-wrappers/v1.json
+   aws s3 cp assets/json/prompt-wrappers.json s3://modelops-config/prompt-wrappers/v1.json
    ```
 2. **Set SSM pointer**
 
@@ -129,20 +137,15 @@ npm install
 }
 ```
 
-*Ops can update this file and just bump the SSM pointer—no CDK redeploy.*
+*This is maintained in a file for independent control over prompt wrapping rules.*
 
 Every evaluator calls:
 
 ```ts
-import { wrapPrompt } from '/opt/nodejs/prompt-utils';
-...
-const body = JSON.stringify({
-  prompt: await wrapPrompt(modelId, rawQuestion),
-  max_tokens_to_sample: 256
-});
+import { wrapPrompt }
 ```
 
-`wrapPrompt()` lazily loads & caches the JSON rules from S3 (key provided by SSM) so cold‑start cost is minimal.
+`wrapPrompt` lazily loads & caches the JSON rules from S3 (key provided by SSM) so cold‑start cost is minimal.
 
 ---
 
