@@ -177,7 +177,8 @@
         "Arn"
        ]
       },
-      "DEFAULT_MODEL_ID": "amazon.nova-lite-v1:0",
+      "DEFAULT_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.amazon.nova-lite-v1:0",
+      "JUDGE_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
      }
     },
@@ -301,7 +302,7 @@
    "Properties": {
     "Code": {
      "S3Bucket": "cdk-hnb659fds-assets-028889494675-us-west-2",
-     "S3Key": "565798c56c2ae72768fbba69e8b8581cbd6a99a790c61d65f60ea15cda3c736b.zip"
+     "S3Key": "407da295886fa8659f919633433d93ef60f8a2ebc1d6032848e09aa2702fb8ae.zip"
     },
     "Environment": {
      "Variables": {
@@ -317,7 +318,8 @@
         "Arn"
        ]
       },
-      "DEFAULT_MODEL_ID": "amazon.nova-lite-v1:0",
+      "DEFAULT_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.amazon.nova-lite-v1:0",
+      "JUDGE_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
      }
     },
@@ -343,7 +345,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "EvalStack/FactualFn/Resource",
-    "aws:asset:path": "asset.565798c56c2ae72768fbba69e8b8581cbd6a99a790c61d65f60ea15cda3c736b",
+    "aws:asset:path": "asset.407da295886fa8659f919633433d93ef60f8a2ebc1d6032848e09aa2702fb8ae",
     "aws:asset:is-bundled": true,
     "aws:asset:property": "Code"
    }
@@ -441,7 +443,7 @@
    "Properties": {
     "Code": {
      "S3Bucket": "cdk-hnb659fds-assets-028889494675-us-west-2",
-     "S3Key": "e2f51958ddb9ac599879ac3b71985e60dd17d967f20a030feaaa0de84173170c.zip"
+     "S3Key": "197d4ea528c96775d0bf61e7292ac6c859473b1a30d9bcdb6183071458b04d9b.zip"
     },
     "Environment": {
      "Variables": {
@@ -457,7 +459,8 @@
         "Arn"
        ]
       },
-      "DEFAULT_MODEL_ID": "amazon.nova-lite-v1:0",
+      "DEFAULT_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.amazon.nova-lite-v1:0",
+      "JUDGE_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
      }
     },
@@ -483,7 +486,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "EvalStack/RegFn/Resource",
-    "aws:asset:path": "asset.e2f51958ddb9ac599879ac3b71985e60dd17d967f20a030feaaa0de84173170c",
+    "aws:asset:path": "asset.197d4ea528c96775d0bf61e7292ac6c859473b1a30d9bcdb6183071458b04d9b",
     "aws:asset:is-bundled": true,
     "aws:asset:property": "Code"
    }
@@ -581,7 +584,7 @@
    "Properties": {
     "Code": {
      "S3Bucket": "cdk-hnb659fds-assets-028889494675-us-west-2",
-     "S3Key": "1c2262a310bb92b81d4984a76ab4bd544455be9a6daa086efedfef6b6f4eadb3.zip"
+     "S3Key": "b42067cde2e6efa74d3d991d2ccc7165a211d6ddd36d4546840ebaa169b217ec.zip"
     },
     "Environment": {
      "Variables": {
@@ -597,7 +600,8 @@
         "Arn"
        ]
       },
-      "DEFAULT_MODEL_ID": "amazon.nova-lite-v1:0",
+      "DEFAULT_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.amazon.nova-lite-v1:0",
+      "JUDGE_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
      }
     },
@@ -623,7 +627,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "EvalStack/FairFn/Resource",
-    "aws:asset:path": "asset.1c2262a310bb92b81d4984a76ab4bd544455be9a6daa086efedfef6b6f4eadb3",
+    "aws:asset:path": "asset.b42067cde2e6efa74d3d991d2ccc7165a211d6ddd36d4546840ebaa169b217ec",
     "aws:asset:is-bundled": true,
     "aws:asset:property": "Code"
    }
@@ -721,7 +725,7 @@
    "Properties": {
     "Code": {
      "S3Bucket": "cdk-hnb659fds-assets-028889494675-us-west-2",
-     "S3Key": "f3feb4346450ed237566ebd046087b104b37b7687e260665dc93d244d37a21ed.zip"
+     "S3Key": "b584b79fa85a0c7a58a5d2310c5d2d5d8bb214146cb88efeaa912958d71328a8.zip"
     },
     "Environment": {
      "Variables": {
@@ -737,7 +741,8 @@
         "Arn"
        ]
       },
-      "DEFAULT_MODEL_ID": "amazon.nova-lite-v1:0",
+      "DEFAULT_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.amazon.nova-lite-v1:0",
+      "JUDGE_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
      }
     },
@@ -763,7 +768,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "EvalStack/PrivFn/Resource",
-    "aws:asset:path": "asset.f3feb4346450ed237566ebd046087b104b37b7687e260665dc93d244d37a21ed",
+    "aws:asset:path": "asset.b584b79fa85a0c7a58a5d2310c5d2d5d8bb214146cb88efeaa912958d71328a8",
     "aws:asset:is-bundled": true,
     "aws:asset:property": "Code"
    }
@@ -831,7 +836,7 @@
    "Properties": {
     "Code": {
      "S3Bucket": "cdk-hnb659fds-assets-028889494675-us-west-2",
-     "S3Key": "b900ab33d7acc4e5bcf8e817cd384d71ea0423ef1b0ce0994b29f3fe444b1136.zip"
+     "S3Key": "46a9593d7fdc9bec7eb1d8b70f9b91910a02ffe1276a2e4d31f001ff44a7735f.zip"
     },
     "Environment": {
      "Variables": {
@@ -847,7 +852,8 @@
         "Arn"
        ]
       },
-      "DEFAULT_MODEL_ID": "amazon.nova-lite-v1:0",
+      "DEFAULT_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.amazon.nova-lite-v1:0",
+      "JUDGE_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
      }
     },
@@ -873,7 +879,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "EvalStack/LatencyFn/Resource",
-    "aws:asset:path": "asset.b900ab33d7acc4e5bcf8e817cd384d71ea0423ef1b0ce0994b29f3fe444b1136",
+    "aws:asset:path": "asset.46a9593d7fdc9bec7eb1d8b70f9b91910a02ffe1276a2e4d31f001ff44a7735f",
     "aws:asset:is-bundled": true,
     "aws:asset:property": "Code"
    }
@@ -941,7 +947,7 @@
    "Properties": {
     "Code": {
      "S3Bucket": "cdk-hnb659fds-assets-028889494675-us-west-2",
-     "S3Key": "971cdedbf9beef78540bea208150f8f8e6441c009057d8e5caaada52aedbf2fd.zip"
+     "S3Key": "9157e8b72f55475a4153e9b465347833913eadc18f257b2449074459db1dfeee.zip"
     },
     "Environment": {
      "Variables": {
@@ -957,7 +963,8 @@
         "Arn"
        ]
       },
-      "DEFAULT_MODEL_ID": "amazon.nova-lite-v1:0",
+      "DEFAULT_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.amazon.nova-lite-v1:0",
+      "JUDGE_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
      }
     },
@@ -983,7 +990,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "EvalStack/JudgeFn/Resource",
-    "aws:asset:path": "asset.971cdedbf9beef78540bea208150f8f8e6441c009057d8e5caaada52aedbf2fd",
+    "aws:asset:path": "asset.9157e8b72f55475a4153e9b465347833913eadc18f257b2449074459db1dfeee",
     "aws:asset:is-bundled": true,
     "aws:asset:property": "Code"
    }
@@ -1091,7 +1098,8 @@
         "Arn"
        ]
       },
-      "DEFAULT_MODEL_ID": "amazon.nova-lite-v1:0",
+      "DEFAULT_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.amazon.nova-lite-v1:0",
+      "JUDGE_MODEL_ID": "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0",
       "AWS_NODEJS_CONNECTION_REUSE_ENABLED": "1"
      }
     },

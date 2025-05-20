@@ -24,7 +24,13 @@ export const handler = async (event: any) => {
   let correct = 0;
   for (const rawQ of qs) {
     const prompt = await wrapPrompt(modelId, rawQ);
-    const body   = JSON.stringify({ prompt, max_tokens_to_sample: 256 });
+    const body = JSON.stringify({
+      messages: [
+        { role: 'system', content: '' },
+        { role: 'user',   content: prompt }
+      ],
+      max_tokens_to_sample: 256
+    });
     const res: any = await client.send(
       new InvokeModelCommand({ modelId, contentType: 'application/json', accept: 'application/json', body })
     );

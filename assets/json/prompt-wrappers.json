@@ -1,9 +1,8 @@
 {
-    "rules": [
-      { "match": "^anthropic\\.", "prefix": "\\n\\nHuman: ", "suffix": "\\n\\nAssistant:" },
-      { "match": "^mistral\\.",   "prefix": "[INST] ",       "suffix": " [/INST]" },
-      { "match": "llama|meta",    "prefix": "<<SYS>>\\n",    "suffix": "\\n<</SYS>>" },
-      { "match": ".*",            "prefix": "",              "suffix": "" }
-    ]
-  }
-  
+  "rules": [
+    { "match": "^anthropic\\.", "prefix": "\\n\\nHuman: ", "suffix": "\\n\\nAssistant:" },
+    { "match": "^mistral\\.",   "prefix": "[INST] ",       "suffix": " [/INST]" },
+    { "match": "llama|meta",    "prefix": "<<SYS>>\\n",    "suffix": "\\n<</SYS>>" },
+    { "match": ".*",            "prefix": "",              "suffix": "" }
+  ]
+}

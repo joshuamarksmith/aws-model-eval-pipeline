@@ -54,7 +54,9 @@ export class EvaluationStack extends Stack {
       DATASET_BUCKET: datasetBucket.bucketName,
       TABLE_NAME: evalTable.tableName,
       EVENT_BUS_ARN: modelBus.eventBusArn,
-      DEFAULT_MODEL_ID: "amazon.nova-lite-v1:0", // override via SSM if desired
+      // DEFAULT_MODEL_ID_NO_PROFILE: "amazon.nova-lite-v1:0", // override via SSM if desired
+      DEFAULT_MODEL_ID: "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.amazon.nova-lite-v1:0", // override via SSM if desired
+      JUDGE_MODEL_ID: "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0"
     };
 
     /* ── Helper to create Nodejs Lambdas ─────────── */
