@@ -2,6 +2,7 @@
 .AWSCLIV2.pkg
 .cdk.staging
 **/cdk.out/
+.DS_Store
 
 # Ignore all node_modules folders
 **/node_modules/
