@@ -1,5 +1,5 @@
 # AWS CLI and CDK build artifacts
-AWSCLIV2.pkg
+.AWSCLIV2.pkg
 .cdk.staging
 **/cdk.out/
 
