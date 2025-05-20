@@ -1,62 +1,72 @@
-import { DynamoDBClient, PutItemCommand } from '@aws-sdk/client-dynamodb';
-import { EventBridgeClient, PutEventsCommand } from '@aws-sdk/client-eventbridge';
-import { SSMClient, PutParameterCommand } from '@aws-sdk/client-ssm';
+import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
+import { EventBridgeClient, PutEventsCommand } from "@aws-sdk/client-eventbridge";
+import { SSMClient, PutParameterCommand } from "@aws-sdk/client-ssm";
+import { randomUUID } from "crypto";
 
 const ddb = new DynamoDBClient({});
-const eb = new EventBridgeClient({});
+const eb  = new EventBridgeClient({});
 const ssm = new SSMClient({});
 
-const { TABLE_NAME, EVENT_BUS_ARN } = process.env;
-
-interface EvalResult {
-  check: string;
-  score: number;
-  passed: boolean;
-}
-
 export const handler = async (event: any) => {
-  const { runId, datasetKeys } = event; // propagated from selector
-  const results: EvalResult[] = event.Input ?? []; // Parallel output
+  console.log("▶️ Aggregator input:", JSON.stringify(event));
 
-  const approved = results.every(r => r.passed);
+  // Normalize the results array:
+  // If event is already an array of {check,score,passed}, use it.
+  // Otherwise look for event.results.
+  let results: any[];
+  if (Array.isArray(event)) {
+    results = event;
+  } else if (Array.isArray(event.results)) {
+    results = event.results;
+  } else {
+    throw new Error("Aggregator: could not find results array in input");
+  }
 
+  // Generate or propagate a runId
+  const runId = typeof event.runId === "string" ? event.runId : randomUUID();
+  const ts = Date.now().toString();
+  const approved = results.every(r => r.passed === true);
+
+  // 1) Write to DynamoDB
   await ddb.send(
     new PutItemCommand({
-      TableName: TABLE_NAME!,
+      TableName: process.env.TABLE_NAME!,
       Item: {
-        runId: { S: runId },
-        ts: { N: Date.now().toString() },
-        approved: { BOOL: approved },
-        results: { S: JSON.stringify(results) }
+        runId:     { S: runId },
+        timestamp: { N: ts },
+        approved:  { BOOL: approved },
+        results:   { S: JSON.stringify(results) }
       }
     })
   );
 
+  // 2) If approved, emit ModelApproved event and update SSM
   if (approved) {
-    // fire event for Deployment stack
+    const detailPayload = { runId, results };
+    // 2a) EventBridge
     await eb.send(
       new PutEventsCommand({
         Entries: [
           {
-            EventBusName: EVENT_BUS_ARN,
-            Source: 'llmops.evaluator',
-            DetailType: 'ModelApproved',
-            Detail: JSON.stringify(event.detail ?? {}),
-          }
-        ]
+            EventBusName: process.env.EVENT_BUS_ARN!,
+            Source:       "llmops.evaluator",
+            DetailType:   "ModelApproved",
+            Detail:       JSON.stringify(detailPayload),
+          },
+        ],
       })
     );
-
-    // optional – write to SSM
+    // 2b) SSM pointer
     await ssm.send(
       new PutParameterCommand({
-        Name: '/modelops/approved/current',
-        Type: 'String',
+        Name:      "/modelops/approved/current",
+        Type:      "String",
         Overwrite: true,
-        Value: JSON.stringify(event.detail ?? {})
+        Value:     JSON.stringify(detailPayload),
       })
     );
   }
 
-  return { approved };
+  // Return minimal info
+  return { runId, approved };
 };

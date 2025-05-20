@@ -490,6 +490,11 @@
                                   "Action": "ssm:GetParameter",
                                   "Effect": "Allow",
                                   "Resource": "arn:aws:ssm:us-west-2:028889494675:parameter/modelops/prompt-wrappers/version"
+                                },
+                                {
+                                  "Action": "s3:GetObject",
+                                  "Effect": "Allow",
+                                  "Resource": "arn:aws:s3:::modelops-config-334f70cce93f/prompt-wrappers/*"
                                 }
                               ],
                               "Version": "2012-10-17"
@@ -708,6 +713,11 @@
                                   "Action": "ssm:GetParameter",
                                   "Effect": "Allow",
                                   "Resource": "arn:aws:ssm:us-west-2:028889494675:parameter/modelops/prompt-wrappers/version"
+                                },
+                                {
+                                  "Action": "s3:GetObject",
+                                  "Effect": "Allow",
+                                  "Resource": "arn:aws:s3:::modelops-config-334f70cce93f/prompt-wrappers/*"
                                 }
                               ],
                               "Version": "2012-10-17"
@@ -926,6 +936,11 @@
                                   "Action": "ssm:GetParameter",
                                   "Effect": "Allow",
                                   "Resource": "arn:aws:ssm:us-west-2:028889494675:parameter/modelops/prompt-wrappers/version"
+                                },
+                                {
+                                  "Action": "s3:GetObject",
+                                  "Effect": "Allow",
+                                  "Resource": "arn:aws:s3:::modelops-config-334f70cce93f/prompt-wrappers/*"
                                 }
                               ],
                               "Version": "2012-10-17"
@@ -1144,6 +1159,11 @@
                                   "Action": "ssm:GetParameter",
                                   "Effect": "Allow",
                                   "Resource": "arn:aws:ssm:us-west-2:028889494675:parameter/modelops/prompt-wrappers/version"
+                                },
+                                {
+                                  "Action": "s3:GetObject",
+                                  "Effect": "Allow",
+                                  "Resource": "arn:aws:s3:::modelops-config-334f70cce93f/prompt-wrappers/*"
                                 }
                               ],
                               "Version": "2012-10-17"
@@ -1515,6 +1535,11 @@
                                   "Action": "ssm:GetParameter",
                                   "Effect": "Allow",
                                   "Resource": "arn:aws:ssm:us-west-2:028889494675:parameter/modelops/prompt-wrappers/version"
+                                },
+                                {
+                                  "Action": "s3:GetObject",
+                                  "Effect": "Allow",
+                                  "Resource": "arn:aws:s3:::modelops-config-334f70cce93f/prompt-wrappers/*"
                                 }
                               ],
                               "Version": "2012-10-17"
