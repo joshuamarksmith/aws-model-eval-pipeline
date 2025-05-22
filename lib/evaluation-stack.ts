@@ -14,6 +14,7 @@ import {
   StackProps,
   CfnOutput
 } from "aws-cdk-lib";
+import { JsonPath } from "aws-cdk-lib/aws-stepfunctions";
 import { Construct } from "constructs";
 import * as path from "path";
 
@@ -55,8 +56,8 @@ export class EvaluationStack extends Stack {
       TABLE_NAME: evalTable.tableName,
       EVENT_BUS_ARN: modelBus.eventBusArn,
       // DEFAULT_MODEL_ID_NO_PROFILE: "amazon.nova-lite-v1:0", // override via SSM if desired
-      DEFAULT_MODEL_ID: "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.amazon.nova-lite-v1:0", // override via SSM if desired
-      JUDGE_MODEL_ID: "arn:aws:bedrock:us-west-2:028889494675:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+      DEFAULT_MODEL_ID: `arn:aws:bedrock:${process.env.CDK_DEFAULT_REGION}:${process.env.CDK_DEFAULT_ACCOUNT}:inference-profile/us.amazon.nova-lite-v1:0`, // override via SSM if desired
+      JUDGE_MODEL_ID: `arn:aws:bedrock:${process.env.CDK_DEFAULT_REGION}:${process.env.CDK_DEFAULT_ACCOUNT}:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0`
     };
 
     /* ── Helper to create Nodejs Lambdas ─────────── */
@@ -88,6 +89,7 @@ export class EvaluationStack extends Stack {
       regFn,
       fairFn,
       privFn,
+      judgeFn
     ].forEach(fn => datasetBucket.grantRead(fn));
 
     [
@@ -157,7 +159,7 @@ export class EvaluationStack extends Stack {
 
     const definition = new tasks.LambdaInvoke(this, "SelectTests", {
       lambdaFunction: testSelectorFn,
-      outputPath: "$.Payload",
+      resultPath: JsonPath.DISCARD,
     })
       .next(parallel)
       .next(

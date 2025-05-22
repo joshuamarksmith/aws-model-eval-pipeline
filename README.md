@@ -154,9 +154,10 @@ import { wrapPrompt }
 ### Custom model import finished
 
 ```bash
-aws events put-events --event-bus-name ModelOpsBus --entries '[{
+aws events put-events --entries '[{
   "Source":"bedrock.custom-model",
   "DetailType":"ModelImported",
+  "EventBusName": "ModelOpsBus",
   "Detail":"{\"modelArn\":\"arn:aws:bedrock:us-west-2:123456789012:model/myteam.credit-risk\",\"version\":\"2025-05-10\"}"
 }]'
 ```
@@ -164,9 +165,10 @@ aws events put-events --event-bus-name ModelOpsBus --entries '[{
 ### Foundation model candidate
 
 ```bash
-aws events put-events --event-bus-name ModelOpsBus --entries '[{
+aws events put-events --entries '[{
   "Source":"model-registry",
   "DetailType":"NewCandidateModel",
+  "EventBusName": "ModelOpsBus",
   "Detail":"{\"modelId\":\"anthropic.claude-3-opus-20240229\",\"version\":\"2025-05-09\"}"
 }]'
 ```
