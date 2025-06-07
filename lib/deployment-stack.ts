@@ -14,7 +14,7 @@ export class DeploymentStack extends cdk.Stack {
     const bedrockInferenceFunction = new lambda.Function(this, 'BedrockInferenceFunction', {
       runtime: lambda.Runtime.PYTHON_3_12,
       handler: 'index.handler',
-      code: lambda.Code.fromAsset('lambda/deployment-bedrockinference-prod'),
+      code: lambda.Code.fromAsset('lambda/deployment-bedrockinference'),
       timeout: cdk.Duration.minutes(10),
       memorySize: 512,
       logRetention: 1

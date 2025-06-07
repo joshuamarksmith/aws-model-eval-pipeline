@@ -169,7 +169,7 @@ aws events put-events --entries '[{
   "Source":"model-registry",
   "DetailType":"NewCandidateModel",
   "EventBusName": "ModelOpsBus",
-  "Detail":"{\"modelId\":\"anthropic.claude-3-opus-20240229\",\"version\":\"2025-05-09\"}"
+  "Detail":"{\"modelId\":\"arn:aws:bedrock:<REGION>:<ACCOUNT_ID>:inference-profile/us.anthropic.claude-3-opus-20240229-v1:0\",\"version\":\"2025-05-09\"}"
 }]'
 ```
 

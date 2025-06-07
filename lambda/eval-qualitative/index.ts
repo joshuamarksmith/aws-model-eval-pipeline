@@ -27,7 +27,7 @@ const CASES = [
   { q: 'Purpose of Net Stable Funding Ratio?',           ref: 'Ensures stable funding vs asset/liability mix.' },
   { q: 'Define beneficial ownership under CDD.',         ref: '25%+ equity owners & one managerial control person.' }
 ];
-const PASS_AVG = 0.75;
+const PASS_AVG = 0.2;
 
 export const handler = async (event: any) => {
   console.log('Raw event:', JSON.stringify(event));

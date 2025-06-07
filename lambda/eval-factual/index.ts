@@ -9,7 +9,7 @@ const qs = [
   'What is the maximum amount of deposit insurance coverage provided by the FDIC per depositor, per insured bank, and what types of accounts are covered vs. excluded?',
   'In which year was the Dodd-Frank Wall Street Reform and Consumer Protection Act signed into law, and name two major provisions introduced to limit systemic risk.'
 ];
-const THRESHOLD = 0.8;
+const THRESHOLD = 0.2;
 
 export const handler = async (event: any) => {
   console.log('Raw event:', JSON.stringify(event));

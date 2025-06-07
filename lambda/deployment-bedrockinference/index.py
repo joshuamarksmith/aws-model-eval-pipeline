@@ -47,11 +47,12 @@ def generate_conversation(bedrock_client, model_id, system_prompts, messages):
         additionalModelRequestFields=additional_model_fields
     )
 
+    logger.info("Response from model: %s", response)
     # Log token usage
-    token_usage = response['usage']
-    logger.info("Input tokens: %s, Output tokens: %s, Total tokens: %s, Stop reason: %s",
-                token_usage['inputTokens'], token_usage['outputTokens'], 
-                token_usage['totalTokens'], response['stopReason'])
+    # token_usage = response['usage']
+    # logger.info("Input tokens: %s, Output tokens: %s, Total tokens: %s, Stop reason: %s",
+    #             token_usage['inputTokens'], token_usage['outputTokens'], 
+    #             token_usage['totalTokens'], response['stopReason'])
 
     return response
 
