@@ -75,5 +75,5 @@ export const handler = async (event: any) => {
   }
 
   const avg = total / (CASES.length * 4);
-  return { check: 'LLMJudge', score: avg, passed: avg >= PASS_AVG };
+  return { candidateId, check: 'LLMJudge', score: avg, passed: avg >= PASS_AVG };
 };

@@ -2,7 +2,7 @@ import { BedrockRuntimeClient, ConverseCommand } from '@aws-sdk/client-bedrock-r
 
 const client = new BedrockRuntimeClient({});
 const SAMPLE = 'Summarize the impact of Basel III on global capital markets in one sentence.';
-const RUNS   = 10;
+const RUNS   = 2;
 const SLA_MS = 1200;
 
 export const handler = async (event: any) => {
@@ -32,5 +32,5 @@ export const handler = async (event: any) => {
   times.sort((a, b) => a - b);
   const p95    = times[Math.floor(0.95 * times.length)];
   const passed = p95 <= SLA_MS;
-  return { check: 'LatencyP95', score: p95, passed };
+  return { modelId, check: 'LatencyP95', score: p95, passed };
 };

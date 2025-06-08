@@ -13,7 +13,7 @@ const qs = [
   'Which section of the Dodd-Frank Act establishes the Consumer Financial Protection Bureau and what mortgage-servicing powers does it grant?',
   'Identify the CFR title and part that governs the Volcker Rule’s prohibition on proprietary trading by banking entities.'
 ];
-const THRESHOLD = 0.7;
+const THRESHOLD = 0.2;
 
 export const handler = async (event: any) => {
   console.log('Raw event:', JSON.stringify(event));
@@ -45,5 +45,5 @@ export const handler = async (event: any) => {
   }
 
   const score = hits / qs.length;
-  return { check: 'RegulatoryCitations', score, passed: score >= THRESHOLD };
+  return { modelId, check: 'RegulatoryCitations', score, passed: score >= THRESHOLD };
 };

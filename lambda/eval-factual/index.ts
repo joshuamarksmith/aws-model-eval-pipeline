@@ -48,5 +48,5 @@ export const handler = async (event: any) => {
   }
 
   const score = correct / qs.length;
-  return { check: 'FactualAccuracy', score, passed: score >= THRESHOLD };
+  return { modelId, check: 'FactualAccuracy', score, passed: score >= THRESHOLD };
 };

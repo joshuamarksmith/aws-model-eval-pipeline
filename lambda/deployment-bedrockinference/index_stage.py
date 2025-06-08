@@ -11,6 +11,12 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 # Get model parameters from environment variables with defaults
 # MODEL_ID = os.environ.get("MODEL_ID", "anthropic.claude-3-sonnet-20240229-v1:0")
+
+# get MODEL_ID from parameter store
+ssm = boto3.client("ssm")
+MODEL_ID = json.loads(ssm.get_parameter(Name="/modelops/approved/current")["Parameter"]["Value"]).get('results')[0].get('modelId')
+logger.info(f"MODEL_ID: {MODEL_ID}")
+
 TEMPERATURE = float(os.environ.get("TEMPERATURE", "0.5"))
 TOP_K = int(os.environ.get("TOP_K", "200"))
 
